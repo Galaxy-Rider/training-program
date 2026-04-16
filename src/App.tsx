@@ -6,7 +6,52 @@ const PHASES = [
   { name: "Peak", weeks: [9,10,11,12], color: "#C0392B", accent: "#E05A4A", desc: "Max effort & performance testing" },
 ];
 
-const getPhase = (week) => PHASES.find(p => p.weeks.includes(week));
+interface Phase {
+  name: string;
+  weeks: number[];
+  color: string;
+  accent: string;
+  desc: string;
+}
+
+interface Exercise {
+  name: string;
+  sets: number;
+  reps: string;
+  notes: string;
+}
+
+interface StrengthSession {
+  label: string;
+  exercises: Exercise[];
+}
+
+interface CyclingSession {
+  label: string;
+  tag: string;
+  duration: string;
+  intensity: string;
+  sprintNote: string | null;
+  notes: string;
+  structure: string;
+}
+
+interface MobilityItem {
+  name: string;
+  duration: string;
+  whyItMatters: string;
+  howTo: string;
+  feel: string;
+}
+
+interface MobilitySession {
+  label: string;
+  duration: string;
+  focus: string;
+  routine: MobilityItem[];
+}
+
+const getPhase = (week: number): Phase => PHASES.find(p => p.weeks.includes(week)) as Phase;
 
 // Strength day templates by phase
 const STRENGTH_TEMPLATES = {
@@ -530,10 +575,10 @@ const getWeekData = (week) => {
 };
 
 export default function TrainingProgram() {
-  const [selectedWeek, setSelectedWeek] = useState(1);
-  const [activeDay, setActiveDay] = useState(null);
-  const [expandedExercise, setExpandedExercise] = useState(null);
-  const [view, setView] = useState("overview"); // overview | week
+  const [selectedWeek, setSelectedWeek] = useState<number>(1);
+  const [activeDay, setActiveDay] = useState<number | null>(null);
+  const [expandedExercise, setExpandedExercise] = useState<string | null>(null);
+  const [view, setView] = useState<string>("overview"); // overview | week
 
   const weekData = getWeekData(selectedWeek);
   const phase = weekData.phase;
@@ -643,7 +688,7 @@ export default function TrainingProgram() {
         }}>
           <div>
             <div style={{ fontSize: 11, letterSpacing: 3, color: phase.color, fontFamily: "monospace", textTransform: "uppercase" }}>
-              Phase {PHASES.indexOf(phase) + 1} · {phase.name}
+              Phase {PHASES.indexOf(phase as Phase) + 1} · {(phase as Phase).name}
             </div>
             <div style={{ fontSize: 14, color: "#C0B8A8", marginTop: 4 }}>{phase.desc}</div>
           </div>
@@ -801,7 +846,7 @@ export default function TrainingProgram() {
                         </tr>
                       </thead>
                       <tbody>
-                        {d.session.exercises.map((ex, ei) => (
+                        {d.session.exercises.map((ex: Exercise, ei: number) => (
                           <tr key={ei} style={{
                             borderBottom: "1px solid #1E1E20",
                             cursor: "pointer",
@@ -858,7 +903,7 @@ export default function TrainingProgram() {
                       <span style={{ padding: "4px 10px", background: "#1A1A1C", borderRadius: 4, fontSize: 11, color: "#888", fontFamily: "monospace" }}>Focus: {d.session.focus}</span>
                     </div>
                     <div style={{ fontSize: 11, color: "#555", fontFamily: "monospace", marginBottom: 12 }}>TAP ANY STRETCH FOR FULL INSTRUCTIONS ▼</div>
-                    {d.session.routine.map((item, ri) => {
+                    {d.session.routine.map((item: MobilityItem, ri: number) => {
                       const isOpen = expandedExercise === `mob-${i}-${ri}`;
                       return (
                         <div key={ri} style={{ borderBottom: ri < d.session.routine.length - 1 ? "1px solid #1E1E20" : "none" }}>
